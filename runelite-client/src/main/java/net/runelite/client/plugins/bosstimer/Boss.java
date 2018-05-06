@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ItemID;
 
 @Slf4j
-enum Boss
+public enum Boss
 {
 	GENERAL_GRAARDOR("General Graardor", 90, ChronoUnit.SECONDS, ItemID.PET_GENERAL_GRAARDOR),
 	KRIL_TSUTSAROTH("K'ril Tsutsaroth", 90, ChronoUnit.SECONDS, ItemID.PET_KRIL_TSUTSAROTH),

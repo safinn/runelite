@@ -140,4 +140,10 @@ public final class AnimationID
 
 	// Arceuus spellbook
 	public static final int MAGIC_ARCEUUS_RESURRECT_CROPS = 7118;
+
+	// Attacks
+	public static final int DRAGON_WARHAMMER_SPECIAL_ATTACK = 1378;
+	public static final int ARCLIGHT_SPECIAL_ATTACK = 2890;
+	public static final int BANDOS_GODSWORD_SPECIAL_ATTACK = 7642;
+
 }
