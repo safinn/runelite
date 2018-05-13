@@ -26,9 +26,12 @@ package net.runelite.client.plugins.raids;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.text.DecimalFormat;
 import javax.inject.Inject;
 import net.runelite.api.Client;
 import net.runelite.api.Varbits;
+
+import static net.runelite.client.plugins.raids.RaidsPlugin.DECIMAL_FORMAT;
 import static net.runelite.client.plugins.raids.RaidsPlugin.POINTS_FORMAT;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayPosition;
@@ -63,6 +66,7 @@ public class RaidsPointsOverlay extends Overlay
 
 		int totalPoints = client.getVar(Varbits.TOTAL_POINTS);
 		int personalPoints = client.getVar(Varbits.PERSONAL_POINTS);
+		double pointPercentage = totalPoints != 0 ? personalPoints / (totalPoints / 100.0) : 0;
 
 		panel.getChildren().clear();
 		panel.getChildren().add(LineComponent.builder()
@@ -78,6 +82,11 @@ public class RaidsPointsOverlay extends Overlay
 		panel.getChildren().add(LineComponent.builder()
 			.left("Party size:")
 			.right(String.valueOf(client.getVar(Varbits.RAID_PARTY_SIZE)))
+			.build());
+
+		panel.getChildren().add(LineComponent.builder()
+			.left("Percentage:")
+			.right(String.valueOf(DECIMAL_FORMAT.format(pointPercentage)) + "%")
 			.build());
 
 		return panel.render(graphics);
