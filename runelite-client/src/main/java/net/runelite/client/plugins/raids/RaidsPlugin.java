@@ -47,12 +47,16 @@ import net.runelite.api.GameState;
 import net.runelite.api.InstanceTemplates;
 import net.runelite.api.ObjectID;
 import net.runelite.api.Point;
+import net.runelite.api.Projectile;
+import net.runelite.api.ProjectileID;
 import net.runelite.api.VarPlayer;
 import net.runelite.api.Tile;
 import net.runelite.api.Varbits;
 import static net.runelite.api.Perspective.SCENE_SIZE;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.ConfigChanged;
+import net.runelite.api.events.GameTick;
+import net.runelite.api.events.ProjectileMoved;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.events.WidgetHiddenChanged;
 import net.runelite.api.widgets.Widget;
@@ -86,6 +90,7 @@ public class RaidsPlugin extends Plugin
 	public static final DecimalFormat POINTS_FORMAT = new DecimalFormat("#,###");
 	private static final String SPLIT_REGEX = "\\s*,\\s*";
 	private static final Pattern ROTATION_REGEX = Pattern.compile("\\[(.*?)\\]");
+	private static final int ONE_GAME_TICK_AS_CYCLE = 30;
 
 	private BufferedImage raidsIcon;
 	private RaidsTimer timer;
@@ -128,6 +133,9 @@ public class RaidsPlugin extends Plugin
 
 	@Getter
 	private ArrayList<String> layoutWhitelist = new ArrayList<>();
+
+	@Getter
+	private ArrayList<ProjectileMoved> projectileMovedlist = new ArrayList<>();
 
 	@Provides
 	RaidsConfig provideConfig(ConfigManager configManager)
@@ -639,5 +647,29 @@ public class RaidsPlugin extends Plugin
 		}
 
 		return raidsIcon;
+	}
+
+	@Subscribe
+	public void onProjectile(ProjectileMoved projectileMoved)
+	{
+		int projectileId = projectileMoved.getProjectile().getId();
+		if (projectileId == ProjectileID.LIZARDMAN_SHAMAN_AOE
+				|| projectileId == ProjectileID.VASA_RANGED_AOE)
+		{
+			projectileMovedlist.add(projectileMoved);
+		}
+	}
+
+	@Subscribe
+	public void onGameTick(GameTick gameTick)
+	{
+		for (ProjectileMoved projectileMoved : projectileMovedlist)
+		{
+			Projectile projectile = projectileMoved.getProjectile();
+			if (projectile.getEndCycle() + ONE_GAME_TICK_AS_CYCLE < client.getGameCycle())
+			{
+				projectileMovedlist.remove(projectileMoved);
+			}
+		}
 	}
 }

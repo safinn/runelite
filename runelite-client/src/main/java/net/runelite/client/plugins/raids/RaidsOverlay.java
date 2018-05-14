@@ -27,12 +27,19 @@ package net.runelite.client.plugins.raids;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Polygon;
+import java.util.List;
 import javax.inject.Inject;
 import lombok.Setter;
+import net.runelite.api.Client;
+import net.runelite.api.Perspective;
+import net.runelite.api.coords.LocalPoint;
+import net.runelite.api.events.ProjectileMoved;
 import net.runelite.client.plugins.raids.solver.Room;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.OverlayPriority;
+import net.runelite.client.ui.overlay.OverlayUtil;
 import net.runelite.client.ui.overlay.components.LineComponent;
 import net.runelite.client.ui.overlay.components.PanelComponent;
 import net.runelite.client.ui.overlay.components.TitleComponent;
@@ -41,23 +48,27 @@ public class RaidsOverlay extends Overlay
 {
 	private RaidsPlugin plugin;
 	private RaidsConfig config;
+	private Client client;
 	private final PanelComponent panelComponent = new PanelComponent();
 
 	@Setter
 	private boolean scoutOverlayShown = false;
 
 	@Inject
-	public RaidsOverlay(RaidsPlugin plugin, RaidsConfig config)
+	public RaidsOverlay(RaidsPlugin plugin, RaidsConfig config, Client client)
 	{
 		setPosition(OverlayPosition.TOP_LEFT);
 		setPriority(OverlayPriority.LOW);
 		this.plugin = plugin;
 		this.config = config;
+		this.client = client;
 	}
 
 	@Override
 	public Dimension render(Graphics2D graphics)
 	{
+		renderProjectiles(graphics);
+
 		if (!config.scoutOverlay() || !scoutOverlayShown)
 		{
 			return null;
@@ -155,5 +166,20 @@ public class RaidsOverlay extends Overlay
 		}
 
 		return panelComponent.render(graphics);
+	}
+
+	private void renderProjectiles(Graphics2D graphics)
+	{
+		List<ProjectileMoved> projectileFiredlist = plugin.getProjectileMovedlist();
+		for (ProjectileMoved projectileMoved : projectileFiredlist)
+		{
+			LocalPoint localPoint = projectileMoved.getPosition();
+			Polygon poly = Perspective.getCanvasTilePoly(client, localPoint);
+
+			if (poly != null)
+			{
+				OverlayUtil.renderPolygon(graphics, poly, Color.RED);
+			}
+		}
 	}
 }
